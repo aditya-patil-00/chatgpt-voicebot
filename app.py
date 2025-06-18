@@ -1,11 +1,18 @@
 import streamlit as st
 from openai import OpenAI
 import os
-import speech_recognition as sr
 import tempfile
 from pydub import AudioSegment
 import io
 from audiorecorder import audiorecorder
+
+# Try to import speech recognition, but handle gracefully if not available
+try:
+    import speech_recognition as sr
+    SPEECH_RECOGNITION_AVAILABLE = True
+except ImportError:
+    SPEECH_RECOGNITION_AVAILABLE = False
+    st.warning("⚠️ Local speech recognition is not available. Will use OpenAI Whisper as fallback.")
 
 # Initialize OpenAI client with DeepInfra endpoint
 client = OpenAI(
@@ -28,8 +35,44 @@ with col2:
     st.write("Or record your question:")
     audio = audiorecorder("🎤 Start Recording", "⏹️ Stop Recording")
 
-# Function to convert speech to text
-def speech_to_text(audio_data):
+# Function to convert speech to text using OpenAI Whisper
+def speech_to_text_whisper(audio_data):
+    try:
+        # Convert audio to WAV format using pydub
+        audio_segment = AudioSegment.from_file(io.BytesIO(audio_data))
+        
+        # Export as WAV with specific parameters
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_audio:
+            audio_segment.export(
+                temp_audio.name,
+                format="wav",
+                parameters=["-ac", "1", "-ar", "16000"]  # Mono, 16kHz
+            )
+            temp_audio_path = temp_audio.name
+
+        # Use OpenAI Whisper for transcription
+        with open(temp_audio_path, "rb") as audio_file:
+            transcript = client.audio.transcriptions.create(
+                model="whisper-1",
+                file=audio_file
+            )
+            return transcript.text
+    except Exception as e:
+        st.error(f"Error converting speech to text: {str(e)}")
+        return None
+    finally:
+        # Clean up temporary file
+        if 'temp_audio_path' in locals():
+            try:
+                os.unlink(temp_audio_path)
+            except:
+                pass
+
+# Function to convert speech to text using local speech recognition
+def speech_to_text_local(audio_data):
+    if not SPEECH_RECOGNITION_AVAILABLE:
+        return None
+    
     recognizer = sr.Recognizer()
     try:
         # Convert audio to WAV format using pydub
@@ -49,13 +92,34 @@ def speech_to_text(audio_data):
             audio_data = recognizer.record(source)
             text = recognizer.recognize_google(audio_data)
             return text
+    except sr.UnknownValueError:
+        st.error("Could not understand the audio. Please try speaking more clearly.")
+        return None
+    except sr.RequestError as e:
+        st.error(f"Could not request results from speech recognition service: {e}")
+        return None
     except Exception as e:
         st.error(f"Error converting speech to text: {str(e)}")
         return None
     finally:
         # Clean up temporary file
         if 'temp_audio_path' in locals():
-            os.unlink(temp_audio_path)
+            try:
+                os.unlink(temp_audio_path)
+            except:
+                pass
+
+# Function to convert speech to text with fallback
+def speech_to_text(audio_data):
+    # Try local speech recognition first
+    if SPEECH_RECOGNITION_AVAILABLE:
+        result = speech_to_text_local(audio_data)
+        if result:
+            return result
+    
+    # Fallback to OpenAI Whisper
+    st.info("Using OpenAI Whisper for speech recognition...")
+    return speech_to_text_whisper(audio_data)
 
 # Process audio if recorded
 if len(audio) > 0:
