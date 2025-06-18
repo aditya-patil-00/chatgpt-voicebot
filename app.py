@@ -2,6 +2,7 @@ import streamlit as st
 from openai import OpenAI
 import os
 import tempfile
+from pydub import AudioSegment
 import io
 from audiorecorder import audiorecorder
 
@@ -37,9 +38,16 @@ with col2:
 # Function to convert speech to text using OpenAI Whisper
 def speech_to_text_whisper(audio_data):
     try:
-        # Save audio data directly to a temporary file
+        # Convert audio to WAV format using pydub
+        audio_segment = AudioSegment.from_file(io.BytesIO(audio_data))
+        
+        # Export as WAV with specific parameters
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_audio:
-            temp_audio.write(audio_data)
+            audio_segment.export(
+                temp_audio.name,
+                format="wav",
+                parameters=["-ac", "1", "-ar", "16000"]  # Mono, 16kHz
+            )
             temp_audio_path = temp_audio.name
 
         # Use OpenAI Whisper for transcription
@@ -67,9 +75,16 @@ def speech_to_text_local(audio_data):
     
     recognizer = sr.Recognizer()
     try:
-        # Save audio data directly to a temporary file
+        # Convert audio to WAV format using pydub
+        audio_segment = AudioSegment.from_file(io.BytesIO(audio_data))
+        
+        # Export as WAV with specific parameters
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_audio:
-            temp_audio.write(audio_data)
+            audio_segment.export(
+                temp_audio.name,
+                format="wav",
+                parameters=["-ac", "1", "-ar", "16000"]  # Mono, 16kHz
+            )
             temp_audio_path = temp_audio.name
 
         # Recognize speech
