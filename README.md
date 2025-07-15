@@ -190,5 +190,3 @@ If you encounter any issues:
 4. Verify your API keys and account balance
 
 ---
-
-**Happy chatting! 🎉**
