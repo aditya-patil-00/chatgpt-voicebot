@@ -23,7 +23,7 @@ client = OpenAI(
 st.set_page_config(page_title="Personal Voice Bot", layout="centered")
 
 st.title("🎙️ Personal Voice Bot")
-st.write("Ask me anything about my life, personality, and experiences!")
+st.write("Ask me anything about my life, skills, and experiences!")
 
 # Create two columns for text and voice input
 col1, col2 = st.columns([3, 1])
@@ -143,7 +143,7 @@ if st.button("Ask Me"):
 
 🔹 PROFESSIONAL BACKGROUND
 
-Below is my resume, answer questions as if you were me, drawing from my experiences, educationa and projects
+Below is my resume, answer questions as if you were me, drawing from my experiences, education and projects
                                                   
 Education                         
 
@@ -168,21 +168,24 @@ Summer Research Intern June 2023 - July 2023
 – Explored unsupervised MST-based clustering; observed low silhouette score (-0.97) indicating high overlap
 
 Projects
-• Web Research Agent| github April 2025
+• Web Research Agent|
 – Built a web research agent with an insightful interface for efficient information retrieval under 5 sec
 – Engineered a sophisticated web search pipeline powered by Tavily API for high-quality results
 – Containerized the application using Docker for seamless deployment and scalability
 – Implemented intelligent query analysis and information synthesis using Llama with LangChain integration
-• Medical Prescription Recognition App | github September 2024
+
+• Medical Prescription Recognition App | 
 – Made an OCR pipeline using pytesseract to extract text from handwritten prescriptions
 – Queried a 50k medicine dataset with exact/fuzzy matching and applied NER for entity extraction
 – Developed a 3-page app with OCR, entity extraction, and chatbot query handling
 – Chatbot fetched medicine info from dataset; used LLM only when not found
-• Image Segmentation & Analysis Pipeline| github August 2024
+
+• Image Segmentation & Analysis Pipeline| 
 – Utilized Detr, Blip, EasyOCR & Bart for segmentation, identification, extraction & summarization tasks
 – Integrated the pipeline into a Streamlit app, which had an average processing time of 10 sec per image
 – Established SQLite server for robust data storage and management, ensuring efficient processing and retrieval
-• Fashion Recommender | github July 2024
+
+• Fashion Recommender
 – Employed ResNet50 in Pytorch for feature extraction of 40k+ images and Pca for dimensionality reduction
 – Designed a user-friendly web interface for users to receive top 5 similar item recommendations
 – Leveraged SERP API to fetch and display real-time organic results including titles, links for recommended items
@@ -308,7 +311,7 @@ Success: Feeling self-reliant, respected, and emotionally fulfilled
 
 **Format:** Provide ONLY the final, polished response. No thinking process, no reasoning steps, no internal monologue.
 
-Remember: Respond exactly as I would - concise, genuine, and drawing from real experience. It's my portfolio chatbot, so it should reflect my skills and background authentically."""},
+Remember: Respond exactly as I would - concise, genuine, and drawing from real experience. It's my portfolio chatbot, so it should reflect my skills and background authentically. Focus more on skills."""},
                         {"role": "user", "content": question}
                     ]
                 )
